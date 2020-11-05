@@ -1,5 +1,5 @@
 # Help to design BLDC articulations
-BLDC controllers are very new with respect the classical DC motor controllers, mainly taking into account position control.
+BLDC controllers are very new with respect the classical DC motor controllers, mainly taking into account position control. The objective of this repo is to gather studies to help design of robots (small and big) with BLDC.
 
 ## Motors
 
@@ -10,7 +10,15 @@ BLDC controllers are very new with respect the classical DC motor controllers, m
 |Resistance/phase(milliOhms)|170|230|
 |Inductance/phase(microHenri)|10|76|
 |Outer diameter(mm)|28|56|
+|Max amps in coals|12 A|18 A|
 |Purpose|Fast/silent animatronics (eye)|Powerful robotic articulation|
+
+-----
+## Tinymovr controller
+
+[Documentation](https://tinymovr.readthedocs.io/en/latest/)
+Here, the tinymovr controller board is powered by a DC power supply 15V - 10A.
+The communication is done via a standard FTDI USB - UART device (for experiment purpose here... Later via CAN bus)
 
 -----
 
@@ -77,11 +85,10 @@ KV = 407 rpm/V
 
 ----
 
-
 ### A small motor (2204-2300KV) + Tinymovr controller - speed test
 the motor is without load
 
-| Speed target (ticks)| Input amps (A)| Measured speed (ticks/s)|
+| Speed target (ticks/s)| Input amps (A)| Measured speed (ticks/s)|
 | ------------------- |:-------------:| -----------------------:|
 | 0                   | 0.060         | 168                     |
 | 7000                | 0.060         | 506                     |
@@ -94,5 +101,18 @@ the motor is without load
 | 320000              | 0.080         | 278386                  |
 | 640000              | 0.090         | 281503                  |
 
+### A bigger motor (2204-2300KV) + Tinymovr controller - speed test
+the motor is without load
 
-
+| Speed target (ticks/s)| Input amps (A)| Measured speed (ticks/s)|
+| ------------------- |:-------------:| -------------------------:|
+| 0                   | 0.060         | -0                        |
+| 5000                | 0.060         | -292                      |
+| 6000                | 0.060         | 4173                      |
+| 7000                | 0.060         | 4915                      |
+| 8000                | 0.060         | 5408                      |
+| 9000                | 0.060         | 7836                      |
+| 10000               | 0.060         | 8835                      |
+| 20000               | 0.090         | 75905                     |
+| 160000              | 0.140         | 166808                    |
+| 320000              | 0.470         | 270000                    |
