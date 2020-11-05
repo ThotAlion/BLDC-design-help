@@ -6,7 +6,7 @@ BLDC controllers are very new with respect the classical DC motor controllers, m
 |                     |Motor 1 |Motor 2|
 | ------------------- |:------:|:-----:|
 |Picture|![](https://img.eachine.com//eachine/products/original/201605/1462515328_17.jpg)|![alt text](https://mad-motor.com/wp-content/uploads/2018/03/MAD5005-EEE_01.jpg "MAD")|
-| Ref| [](https://www.eachine.com/Eachine-Racer-250-Drone-Spare-Part-BG2204-2300KV-Brushless-Motor-CW-or-CCW-p-343.html)|[MAD component 5005-280KV](https://mad-motor.com/product/mad-5005-eee/)|
+| Ref| [Eachine  2204-2300KV](https://www.eachine.com/Eachine-Racer-250-Drone-Spare-Part-BG2204-2300KV-Brushless-Motor-CW-or-CCW-p-343.html)|[MAD component 5005-280KV](https://mad-motor.com/product/mad-5005-eee/)|
 |Resistance/phase(milliOhms)|170|230|
 |Inductance/phase(microHenri)|10|76|
 |Outer diameter(mm)|28|56|
