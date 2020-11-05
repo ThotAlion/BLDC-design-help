@@ -52,6 +52,10 @@ KV = 2970 rpm/V
 
 ![](./motor1-Torque-vs-Iphase.png)
 
+And find below the torque produced function of input intensity
+
+![](./motor1-Torque-vs-Iin.png)
+
 ### A bigger motor (5005-280KV) + Tinymovr controller - push test
 
 the motor is set next to a weighing scale with a lever arm of 98mm. 
@@ -82,6 +86,10 @@ Kv = 1/Kc = 42.7 rad/s/V
 KV = 407 rpm/V
 
 ![](./motor2-Torque-vs-Iphase.png)
+
+And find below the torque produced function of input intensity
+
+![](./motor2-Torque-vs-Iin.png)
 
 ----
 
