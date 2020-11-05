@@ -19,8 +19,15 @@ BLDC controllers are very new with respect the classical DC motor controllers, m
 [Documentation](https://tinymovr.readthedocs.io/en/latest/)
 Here, the tinymovr controller board is powered by a DC power supply 15V - 10A.
 The communication is done via a standard FTDI USB - UART device (for experiment purpose here... Later via CAN bus)
+By default, phase amps is limited to 10A and speed to 300000ticks/s
+1 turn is 8192 ticks.
 
 -----
+## Theory about alternative machines
+
+-----
+
+
 
 ### A small motor (2204-2300KV) + Tinymovr controller - push test
 
@@ -58,6 +65,8 @@ And find below the torque produced function of input intensity
 
 ### A bigger motor (5005-280KV) + Tinymovr controller - push test
 
+![](./5005_setup.jpg)
+
 the motor is set next to a weighing scale with a lever arm of 98mm. 
 Input voltage : 15V.
 
@@ -94,7 +103,10 @@ And find below the torque produced function of input intensity
 ----
 
 ### A small motor (2204-2300KV) + Tinymovr controller - speed test
+
 the motor is without load
+
+![](./2204_setup.jpg)
 
 | Speed target (ticks/s)| Input amps (A)| Measured speed (ticks/s)|
 | ------------------- |:-------------:| -----------------------:|
@@ -110,6 +122,7 @@ the motor is without load
 | 640000              | 0.090         | 281503                  |
 
 ### A bigger motor (2204-2300KV) + Tinymovr controller - speed test
+
 the motor is without load
 
 | Speed target (ticks/s)| Input amps (A)| Measured speed (ticks/s)|
