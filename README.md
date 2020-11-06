@@ -1,6 +1,8 @@
 # Help to design BLDC articulations
 BLDC controllers are very new with respect the classical DC motor controllers, mainly taking into account position control. The objective of this repo is to gather studies to help design of robots (small and big) with BLDC.
 
+Find in this Repo the STL Files used to test the two motors.
+
 ## Motors
 
 |                     |Motor 1 |Motor 2|
