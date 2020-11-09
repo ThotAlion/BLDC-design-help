@@ -9,7 +9,7 @@ Find in this Repo the STL Files used to test the two motors.
 | ------------------- |:------:|:-----:|
 |Picture|![](https://img.eachine.com//eachine/products/original/201605/1462515328_17.jpg)|![alt text](https://mad-motor.com/wp-content/uploads/2018/03/MAD5005-EEE_01.jpg "MAD")|
 | Ref| [Eachine  2204-2300KV](https://www.eachine.com/Eachine-Racer-250-Drone-Spare-Part-BG2204-2300KV-Brushless-Motor-CW-or-CCW-p-343.html)|[MAD component 5005-280KV](https://mad-motor.com/product/mad-5005-eee/)|
-|Resistance/phase(milliOhms)|170|230|
+|Resistance/phase(milliOhms)|170|100|
 |Inductance/phase(microHenri)|10|76|
 |Outer diameter(mm)|28|56|
 |Max quadratic current Iq in coals|12 A|18 A|
@@ -40,6 +40,20 @@ Torque (N.m) = Kc*Iq(A)
 U(V) = Kv*Omega(rad/s)
 
 Knowing that Kc = 1/Kv
+
+![](./draft.png)
+
+The power in the system is used in internal resistor, controller and to general mechanical movement
+
+P_in = P_Joule + P_controller + P_mecha
+
+P_in = U_in.I_in = I_q.I_q.R + P_controller + C*Omega
+
+P_controller in control state is here 0.060A for 15V => 1W
+
+To get the input current when motor is blocked (consider power of controller is small enough) :
+
+I_in = R.I_q.I_q/U_in
 
 -----
 
