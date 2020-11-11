@@ -170,3 +170,13 @@ the motor is without load
 | 320000              | 0.470         | 270000                    |
 
 See that the motor can reach slower speeds even if it slips.
+
+### Reactivity tests with a LeapMotion
+
+This part is in progress, waiting for CAN controllers. Here is a small video with serial communication. The position gain is small by default, that is why, the phase inversion occurs at a very low frequency (with respect to a classical DC controller like Dynamixel)
+
+[![Alt text](https://img.youtube.com/vi/h77mSkhAOiY/0.jpg)](https://www.youtube.com/watch?v=h77mSkhAOiY)
+
+### With a belt reductor
+
+The belt reductor design is under progress, based on [Open Dynamic Robot Initiative](https://github.com/open-dynamic-robot-initiative)
