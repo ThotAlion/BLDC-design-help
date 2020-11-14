@@ -4,7 +4,8 @@ BLDC controllers are very new with respect the classical DC motor controllers, m
 ## STL files
 
 Find in this Repo the STL Files used to test the two motors. Find also STL files for the USB-CAN Box for the Tinymovr kit.
-![](./Pictures/Shell USB_CAN_1.jpg)![](./Pictures/Shell USB_CAN_2.jpg)
+
+![](./Pictures/Shell_USB_CAN_1.jpg)![](./Pictures/Shell_USB_CAN_2.jpg)
 
 ## Motors
 
