@@ -182,6 +182,22 @@ The code is in this Repo (Leap2BLDCUART folder)
 
 [![Alt text](https://img.youtube.com/vi/h77mSkhAOiY/0.jpg)](https://www.youtube.com/watch?v=h77mSkhAOiY)
 
+
+### Motor control with pygame
+
+The folder MotorControl contains a Python3 script to control a brushless motor with a Tinymovr controller. Change the name of the serial port in the script before starting.
+
+The key hacks are :
+- Up arrow : hold position
+- right arrow : decrease and hold position
+- left arrow : increase and hold position
+- z : set current position as zero
+- c : calibrate
+- r : reset the controller
+- p : oscillate position between max and min current
+- space : soft emergency stop
+
+
 ### With a belt reductor
 
 The belt reductor design is under progress, based on [Open Dynamic Robot Initiative](https://github.com/open-dynamic-robot-initiative)
