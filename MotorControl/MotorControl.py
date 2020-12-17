@@ -4,32 +4,42 @@ import time
 import can
 from tinymovr import Tinymovr
 from tinymovr.iface.can import CAN, guess_channel
+from tinymovr.units import get_registry
+# Definition of units
+ureg = get_registry()
+Q_ = ureg.Quantity
+A = ureg.ampere
+s = ureg.second
+min = ureg.minute
+rad = ureg.radian
+deg = ureg.degree
+turn = ureg.turn
+degC = ureg.degC
+
 
 pygame.init()
 ecran = pygame.display.set_mode((600, 600))
 font = pygame.font.SysFont(None, 48)
 
 dt = 0.01
-step=50
-current_threshold = 8.0
+step=5*deg
+current_threshold = 8.0*A
 sign = 1
-
 goon = True
-position = 0
-
-position = 0
+position = 0*deg
 modepygame = 0
 
 # channel = guess_channel(bustype_hint='slcan')
-channel='/dev/ttyS7'
-can_bus = can.Bus(bustype='slcan',
-                           channel=channel,
-                           bitrate=1000000)
+channel='/dev/ttyS6'
+can_bus = can.Bus(bustype='slcan',channel=channel,bitrate=1000000)
 iface = CAN(can_bus)
 tm = Tinymovr(node_id=1, iface=iface)
 
-tm.set_limits(velocity=200000.0, current=16.0)
+tm.set_limits(velocity=2000*turn/min, current=13.0*A)
 tm.set_gains(position=50.0, velocity=0.0001)
+
+print(tm.motor_info)
+print(tm.device_info)
 
 while goon:
     for event in pygame.event.get():
@@ -69,7 +79,7 @@ while goon:
 
     if modepygame == 0:
         tm.current_control()
-        tm.set_cur_setpoint(0.0)
+        tm.set_cur_setpoint(0.0*A)
     elif modepygame == 1:
         position+=step
         tm.position_control()
@@ -81,7 +91,6 @@ while goon:
     elif modepygame == 3:
         tm.position_control()
         tm.set_pos_setpoint(position)
-
     elif modepygame == 4:
         position+=sign*step
         tm.position_control()
@@ -97,21 +106,25 @@ while goon:
     rect1 = img1.get_rect()
     pygame.draw.rect(img1, pygame.color.THECOLORS['blue'], rect1, 1)
 
-    text2 = "Position : {:.0f}".format(tm.encoder_estimates.position)
+    text2 = "Position : {:.0f}".format(tm.encoder_estimates.position.to(deg))
     img2 = font.render(text2, True, pygame.color.THECOLORS['red'])
     rect2 = img2.get_rect()
     pygame.draw.rect(img2, pygame.color.THECOLORS['blue'], rect2, 1)
 
-
-    text3 = "Controlled position : {:.0f}".format(position)
+    text3 = "Controlled position : {:.0f}".format(position.to(deg))
     img3 = font.render(text3, True, pygame.color.THECOLORS['red'])
     rect3 = img3.get_rect()
     pygame.draw.rect(img3, pygame.color.THECOLORS['blue'], rect3, 1)
 
-    text4 = "Velocity : {:.0f}".format(tm.encoder_estimates.velocity)
+    text4 = "Velocity : {:.0f}".format(tm.encoder_estimates.velocity.to(deg/s))
     img4 = font.render(text4, True, pygame.color.THECOLORS['red'])
     rect4 = img4.get_rect()
     pygame.draw.rect(img4, pygame.color.THECOLORS['blue'], rect4, 1)
+
+    text5 = "Température : {:.0f}".format(Q_(tm.device_info.temp, degC))
+    img5 = font.render(text5, True, pygame.color.THECOLORS['red'])
+    rect5 = img5.get_rect()
+    pygame.draw.rect(img5, pygame.color.THECOLORS['blue'], rect5, 1)
     
     img100 = font.render("Error code : %.0f" % tm.state.error, True, pygame.color.THECOLORS['red'])
     rect100 = img100.get_rect()
@@ -126,8 +139,9 @@ while goon:
     ecran.blit(img2, (20, 60))
     ecran.blit(img3, (20, 100))
     ecran.blit(img4, (20, 140))
-    ecran.blit(img100, (20, 180))
-    ecran.blit(img101, (20, 220))
+    ecran.blit(img5, (20, 180))
+    ecran.blit(img100, (20, 220))
+    ecran.blit(img101, (20, 260))
     pygame.display.update()
     
     time.sleep(dt)
