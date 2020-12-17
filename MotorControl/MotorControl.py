@@ -121,7 +121,7 @@ while goon:
     rect4 = img4.get_rect()
     pygame.draw.rect(img4, pygame.color.THECOLORS['blue'], rect4, 1)
 
-    text5 = "Température : {:.0f}".format(Q_(tm.device_info.temp, degC))
+    text5 = "Temperature : {:.0f}".format(Q_(tm.device_info.temp, degC))
     img5 = font.render(text5, True, pygame.color.THECOLORS['red'])
     rect5 = img5.get_rect()
     pygame.draw.rect(img5, pygame.color.THECOLORS['blue'], rect5, 1)
