@@ -37,7 +37,7 @@ can_bus = can.Bus(bustype='slcan',channel=channel,bitrate=1000000)
 iface = CAN(can_bus)
 tm = Tinymovr(node_id=1, iface=iface)
 
-tm.set_limits(velocity=2000*turn/min, current=13.0*A)
+tm.set_limits(velocity=2000*turn/min, current=10.0*A)
 tm.set_gains(position=50.0, velocity=0.001)
 
 print(tm.motor_info)
@@ -89,13 +89,13 @@ while goon:
         tm.set_vel_setpoint(0.0*rad/s)
     elif modepygame == 2:
         tm.current_control()
-        error = nrj-(-nrj0-10*rad*rad/(s*s))
-        torque=(-0.01*thetap*error).magnitude
-        torque=maximum(minimum(torque,5.0),-5.0)
-        print("{:.2f}\t>{:.1f}\t>{:.1f}\t>{:.1f}".format(torque,nrj,theta,thetap))
+        error = nrj-(-nrj0+8*rad*rad/(s*s))
+        torque=(-0.05*thetap*error).magnitude
+        torque=maximum(minimum(torque,4.0),-4.0)
+        # print("{:.2f}\t>{:.1f}\t>{:.1f}\t>{:.1f}".format(torque,nrj,theta,thetap))
         tm.set_cur_setpoint(torque)
-        # if nrj>0.95*(-nrj0):
-        #     modepygame = 3
+        if cos(tm.encoder_estimates.position.to(rad)-theta0)<-0.95:
+            modepygame = 3
     elif modepygame == 3:
         # control to the closest upright position
         tm.position_control()
@@ -108,7 +108,7 @@ while goon:
         # print("closest upright position")
         # print(round((tm.encoder_estimates.position.to(rad)-theta0)/(2*pi*rad)+0.5)*2*pi-pi)
         tm.set_pos_setpoint(round((tm.encoder_estimates.position.to(rad)-theta0)/(2*pi*rad)+0.5)*2*pi-pi+theta0)
-        if nrj<0.95*(-nrj0):
+        if cos(tm.encoder_estimates.position.to(rad)-theta0)>-0.95:
             modepygame = 2
 
     # display
@@ -159,4 +159,4 @@ while goon:
 print("ARRET")
 tm.estop()
 
-time.sleep(1)
+time.sleep(0.1)
