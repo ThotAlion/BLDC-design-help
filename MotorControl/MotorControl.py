@@ -22,9 +22,10 @@ ecran = pygame.display.set_mode((600, 600))
 font = pygame.font.SysFont(None, 48)
 
 dt = 0.01
-step=5*deg
+step=1*deg
 current_threshold = 8.0*A
-sign = 1
+sign = 0
+ratio = 9
 goon = True
 position = 0*deg
 modepygame = 0
@@ -36,7 +37,7 @@ iface = CAN(can_bus)
 tm = Tinymovr(node_id=1, iface=iface)
 
 tm.set_limits(velocity=2000*turn/min, current=13.0*A)
-tm.set_gains(position=50.0, velocity=0.0001)
+tm.set_gains(position=100.0, velocity=0.0001)
 
 print(tm.motor_info)
 print(tm.device_info)
@@ -74,6 +75,15 @@ while goon:
             elif event.key == pygame.K_p:
                 sign = 1
                 modepygame = 4
+                count=0
+            elif event.key == pygame.K_a:
+                step+=1*deg
+                step=minimum(maximum(step,0),50)
+                print(step)
+            elif event.key == pygame.K_q:
+                step-=1*deg
+                step=minimum(maximum(step,0),50)
+                print(step)
         elif event.type == pygame.KEYUP:
             modepygame = 0
 
@@ -95,10 +105,33 @@ while goon:
         position+=sign*step
         tm.position_control()
         tm.set_pos_setpoint(position)
-        if sign == 1 and tm.Iq.estimate>=current_threshold:
-            sign=-1
-        if sign == -1 and tm.Iq.estimate<=-current_threshold:
-            sign=1
+        if sign*tm.Iq.estimate>=current_threshold:
+            count+=1
+        else:
+            count=0
+        if count>=10:
+            position0 = tm.encoder_estimates.position
+            position = position0
+            modepygame = 5
+            print("pop")
+    elif modepygame == 5:
+        position-=sign*step
+        tm.position_control()
+        tm.set_pos_setpoint(position)
+        if(tm.encoder_estimates.position<position0-ratio*170*deg):
+            modepygame = 6
+        if abs(position-tm.encoder_estimates.position)>ratio*90*deg:
+            position = tm.encoder_estimates.position
+            modepygame = 0
+    elif modepygame == 6:
+        position+=sign*step
+        tm.position_control()
+        tm.set_pos_setpoint(position)
+        if(tm.encoder_estimates.position>position0-ratio*5*deg):
+            modepygame = 5
+        if abs(position-tm.encoder_estimates.position)>ratio*90*deg:
+            position = tm.encoder_estimates.position
+            modepygame = 0
     # print(position)
 
     text1 = "Current : {:.2f}".format(tm.Iq.estimate)

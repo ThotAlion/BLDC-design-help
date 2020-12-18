@@ -12,7 +12,8 @@ nrjFlag = False
 T0 = 23.3/30
 w0 = 2*pi/T0
 
-channel = guess_channel(bustype_hint='slcan')
+# channel = guess_channel(bustype_hint='slcan')
+channel='/dev/ttyS6'
 print(channel)
 bus = can.Bus(bustype="slcan",channel=channel)
 
