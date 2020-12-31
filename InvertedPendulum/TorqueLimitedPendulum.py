@@ -5,7 +5,8 @@ import can
 from tinymovr import Tinymovr
 from tinymovr.iface.can import CAN, guess_channel
 from tinymovr.units import get_registry
-# Definition of units
+
+# Definition of units for Pint
 ureg = get_registry()
 Q_ = ureg.Quantity
 A = ureg.ampere
@@ -16,11 +17,7 @@ deg = ureg.degree
 turn = ureg.turn
 degC = ureg.degC
 
-
-pygame.init()
-ecran = pygame.display.set_mode((1000, 1000))
-font = pygame.font.SysFont(None, 48)
-
+# init variables
 dt = 0.01
 goon = True
 modepygame = 0
@@ -30,23 +27,31 @@ T0 = 23.3/30 #30 oscillations in 23.3s
 w0 = 2*pi/T0*rad/s
 nrj0=-w0*w0
 
+# pygame init
+pygame.init()
+ecran = pygame.display.set_mode((1000, 1000))
+font = pygame.font.SysFont(None, 48)
 
+# Instanciate Tinymovr interface
 # channel = guess_channel(bustype_hint='slcan')
 channel='/dev/ttyS6'
 can_bus = can.Bus(bustype='slcan',channel=channel,bitrate=1000000)
 iface = CAN(can_bus)
 tm = Tinymovr(node_id=1, iface=iface)
 
+# initialise motor control gains and limits
 tm.set_limits(velocity=2000*turn/min, current=10.0*A)
 tm.set_gains(position=50.0, velocity=0.001)
-
 print(tm.motor_info)
 print(tm.device_info)
 
+# set the zero (assuming the pendulum is downward and still, else, press "z" key)
 theta0 = tm.encoder_estimates.position.to(rad)
 thetap0 = tm.encoder_estimates.velocity.to(rad/s)
 
+# control loop (100Hz)
 while goon:
+    # recup keyboard input
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             goon = False
@@ -76,11 +81,12 @@ while goon:
         elif event.type == pygame.KEYUP:
             modepygame = 0
 
-    
+    # recup motor sensors and convert to S.I.
     theta = tm.encoder_estimates.position.to(rad)-theta0
     thetap = tm.encoder_estimates.velocity.to(rad/s)-thetap0
     nrj = 0.5*thetap*thetap-w0*w0*cos(theta)
 
+    # test finite state machine
     if modepygame == 0:
         tm.current_control()
         tm.set_cur_setpoint(0.0*A)
@@ -99,19 +105,11 @@ while goon:
     elif modepygame == 3:
         # control to the closest upright position
         tm.position_control()
-        # print("delta to zero rad")
-        # print(tm.encoder_estimates.position.to(rad)-theta0)
-        # print("number of turns+0.5")
-        # print((tm.encoder_estimates.position.to(rad)-theta0)/(2*pi*rad)+0.5)
-        # print("round(number of turns+0.5)")
-        # print(round((tm.encoder_estimates.position.to(rad)-theta0)/(2*pi*rad)+0.5))
-        # print("closest upright position")
-        # print(round((tm.encoder_estimates.position.to(rad)-theta0)/(2*pi*rad)+0.5)*2*pi-pi)
         tm.set_pos_setpoint(round((tm.encoder_estimates.position.to(rad)-theta0)/(2*pi*rad)+0.5)*2*pi-pi+theta0)
         if cos(tm.encoder_estimates.position.to(rad)-theta0)>-0.95:
             modepygame = 2
 
-    # display
+    # display in window
     text1 = "Current : {:.2f}".format(tm.Iq.estimate)
     img1 = font.render(text1, True, pygame.color.THECOLORS['red'])
     rect1 = img1.get_rect()
@@ -154,8 +152,10 @@ while goon:
     ecran.blit(img101, (20, 220))
     pygame.display.update()
 
+    # dirty sleep (no need of accuracy here)
     time.sleep(dt)
 
+# stop calm procedure
 print("ARRET")
 tm.estop()
 
