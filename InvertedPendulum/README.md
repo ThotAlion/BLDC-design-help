@@ -37,6 +37,8 @@ This script is of course not an "industrial" one but the objective is to be very
 - running a control loop (here all is done inside Tinymovr board)
 - send orders (including screen display)
 
+There is only one parameter linked to the mechanical structure of the pendulum, its natural frequency w0. To get it, measure the period of the pendulum by making several swings during one minute. Type it in line 25.
+
 The finite state machine has 4 states :
 - 0 : the safety state with current controlled to 0Amps. This state is set each time a key is released (dead man safety)
 - 1 : the damping state with velocity controlled to zero. Just push down arrow to damp the pendulum. In some seconds, the pendulum is stopped. (press down arrow)
