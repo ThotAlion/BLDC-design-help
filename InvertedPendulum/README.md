@@ -32,7 +32,7 @@ This script is of course not an "industrial" one but the objective is to be very
 
 - Introduction to instanciate all variables and interfaces
 - Open an infinite loop at 100Hz
-- Get all sensors  (including keyborad inputs)
+- Get all sensors  (including keyboard inputs)
 - running a finite state machine (including safety conditions)
 - running a control loop (here all is done inside Tinymovr board)
 - send orders (including screen display)
