@@ -3,6 +3,8 @@ BLDC controlled by a Tinymovr controller allows to build and experiment a "class
 
 There are several setups for inverted pendulums such as cart-pole. Here, the setup is to fix the pendulum directly on the rotor of the brushless motor. But we limit the torque such as it is not possible to lift directly the pendulum to set it upright.
 
+https://www.youtube.com/watch?v=rv7isctR4a8
+
 The motor chosen here is a 2204 at 2300KV (about 10$) found in our old shielves, piloted by the high tech Tinymovr controller with CANable interface. The max current of such a motor is 15Amps which is below the maximal allowed current by Tinymovr. The advantage of Tinymovr is the integrated absolute magnetic encoder and the CANable robust and fast interface.
 
 Therefore, this dynamical control test setup is very cheap and easy to make. The but control theory needed in the background is advanced.
