@@ -23,6 +23,7 @@ font = pygame.font.SysFont(None, 48)
 
 dt = 0.01
 step=1*deg
+period=2*s
 current_threshold = 8.0*A
 sign = 0
 ratio = 9
@@ -31,16 +32,20 @@ position = 0*deg
 modepygame = 0
 
 # channel = guess_channel(bustype_hint='slcan')
-channel='/dev/ttyS6'
+channel='/dev/ttyS7'
 can_bus = can.Bus(bustype='slcan',channel=channel,bitrate=1000000)
 iface = CAN(can_bus)
 tm = Tinymovr(node_id=1, iface=iface)
 
-tm.set_limits(velocity=2000*turn/min, current=13.0*A)
+tm.set_limits(velocity=2000*turn/min, current=8.0*A)
 tm.set_gains(position=100.0, velocity=0.0001)
+tm.set_integrator_gains(velocity=0.001)
 
 print(tm.motor_info)
 print(tm.device_info)
+
+print ("ZERO")
+position = tm.encoder_estimates.position
 
 while goon:
     for event in pygame.event.get():
@@ -79,11 +84,21 @@ while goon:
             elif event.key == pygame.K_a:
                 step+=1*deg
                 step=minimum(maximum(step,0),50)
-                print(step)
+                print("step:{:.0f}".format(step))
             elif event.key == pygame.K_q:
                 step-=1*deg
                 step=minimum(maximum(step,0),50)
-                print(step)
+                print("step:{:.0f}".format(step))
+            elif event.key == pygame.K_e:
+                period+=0.1*s
+                period=minimum(maximum(period,0.1*s),5.0*s)
+                print("period:{:.1f}".format(period))
+            elif event.key == pygame.K_d:
+                period-=0.1*s
+                period=minimum(maximum(period,0.1*s),5.0*s)
+                print("period:{:.1f}".format(period))
+            elif event.key == pygame.K_m:
+                modepygame = 7
         elif event.type == pygame.KEYUP:
             modepygame = 0
 
@@ -132,7 +147,10 @@ while goon:
         if abs(position-tm.encoder_estimates.position)>ratio*90*deg:
             position = tm.encoder_estimates.position
             modepygame = 0
-    # print(position)
+    elif modepygame == 7:
+        position+=step*sin(2*pi*time.time()*s/period)
+        tm.position_control()
+        tm.set_pos_setpoint(position)
 
     text1 = "Current : {:.2f}".format(tm.Iq.estimate)
     img1 = font.render(text1, True, pygame.color.THECOLORS['red'])
@@ -159,11 +177,11 @@ while goon:
     rect5 = img5.get_rect()
     pygame.draw.rect(img5, pygame.color.THECOLORS['blue'], rect5, 1)
     
-    img100 = font.render("Error code : %.0f" % tm.state.error, True, pygame.color.THECOLORS['red'])
+    img100 = font.render("Error code : {}".format(tm.state.errors), True, pygame.color.THECOLORS['red'])
     rect100 = img100.get_rect()
     pygame.draw.rect(img100, pygame.color.THECOLORS['blue'], rect100, 1)
 
-    img101 = font.render("State : %.0f, Mode : %.0f" % (tm.state.state,tm.state.mode), True, pygame.color.THECOLORS['red'])
+    img101 = font.render("State : {}, Mode : {}".format(tm.state.state,tm.state.mode), True, pygame.color.THECOLORS['red'])
     rect101 = img101.get_rect()
     pygame.draw.rect(img101, pygame.color.THECOLORS['blue'], rect101, 1)
 
