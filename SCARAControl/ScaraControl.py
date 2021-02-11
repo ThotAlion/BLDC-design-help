@@ -19,15 +19,16 @@ degC = ureg.degC
 
 
 pygame.init()
-ecran = pygame.display.set_mode((600, 600))
+ecran = pygame.display.set_mode((800, 400))
 font = pygame.font.SysFont(None, 48)
 
 dt = 0.001
-stepL=0.0005*m
+stepL=0.005*m
 period=2*s
 current_threshold = 8.0*A
 sign = 0
-ratio = 10.14
+ratio1 = 10.14
+ratio2 = 9.5
 goon = True
 position1 = 0*deg
 position2 = 0*deg
@@ -38,16 +39,16 @@ L1 = 0.18025*m
 L2 = 0.16005*m
 
 # channel = guess_channel(bustype_hint='slcan')
-channel='/dev/ttyS7'
+channel='/dev/ttyS3'
 can_bus = can.Bus(bustype='slcan',channel=channel,bitrate=1000000)
 iface = CAN(can_bus)
 tm1 = Tinymovr(node_id=1, iface=iface)
 tm2 = Tinymovr(node_id=2, iface=iface)
 
-tm1.set_limits(velocity=1000*turn/min, current=10.0*A)
-tm2.set_limits(velocity=400*turn/min, current=10.0*A)
-tm1.set_gains(position=100.0, velocity=0.0001)
-tm2.set_gains(position=100.0, velocity=0.0001)
+tm1.set_limits(velocity=1400*turn/min, current=14.0*A)
+tm2.set_limits(velocity=800*turn/min, current=18.0*A)
+tm1.set_gains(position=50.0, velocity=0.0001)
+tm2.set_gains(position=50.0, velocity=0.0001)
 tm1.set_integrator_gains(velocity=0.001)
 tm2.set_integrator_gains(velocity=0.001)
 
@@ -105,8 +106,8 @@ while goon:
             length = 0.10*(L1+L2)
         if length>0.99*(L1+L2):
             length = 0.99*(L1+L2)
-        position1 = ratio*arccos((length**2-L1**2-L2**2)/(2*L1*L2))
-        position2 = ratio*arccos((L2**2-L1**2-length**2)/(-2*L1*length))
+        position1 = ratio1*arccos((length**2-L1**2-L2**2)/(2*L1*L2))
+        position2 = ratio2*arccos((L2**2-L1**2-length**2)/(-2*L1*length))
         # print(length)
         # print(L1)
         # print(L2)
@@ -117,15 +118,15 @@ while goon:
         tm1.position_control()
         tm1.set_pos_setpoint(position10+position1)
         tm2.position_control()
-        tm2.set_pos_setpoint(position20-position2)
+        tm2.set_pos_setpoint(position20+position2)
     elif modepygame == 2:
         length-=stepL
         if length<0.10*(L1+L2):
             length = 0.10*(L1+L2)
         if length>0.99*(L1+L2):
             length = 0.99*(L1+L2)
-        position1 = ratio*arccos((length**2-L1**2-L2**2)/(2*L1*L2))
-        position2 = ratio*arccos((L2**2-L1**2-length**2)/(-2*L1*length))
+        position1 = ratio1*arccos((length**2-L1**2-L2**2)/(2*L1*L2))
+        position2 = ratio2*arccos((L2**2-L1**2-length**2)/(-2*L1*length))
         # print(length)
         # print(L1)
         # print(L2)
@@ -136,17 +137,17 @@ while goon:
         tm1.position_control()
         tm1.set_pos_setpoint(position10+position1)
         tm2.position_control()
-        tm2.set_pos_setpoint(position20-position2)
+        tm2.set_pos_setpoint(position20+position2)
     elif modepygame == 3:
         
-        position1 = ratio*arccos((length**2-L1**2-L2**2)/(2*L1*L2))
-        position2 = ratio*arccos((L2**2-L1**2-length**2)/(-2*L1*length))
+        position1 = ratio1*arccos((length**2-L1**2-L2**2)/(2*L1*L2))
+        position2 = ratio2*arccos((L2**2-L1**2-length**2)/(-2*L1*length))
         tm1.set_gains(position=25.0, velocity=0.0001)
         tm2.set_gains(position=25.0, velocity=0.0001)
         tm1.position_control()
         tm1.set_pos_setpoint(position10+position1)
         tm2.position_control()
-        tm2.set_pos_setpoint(position20-position2)
+        tm2.set_pos_setpoint(position20+position2)
 
     text1 = "Current :  {:.2f}||{:.2f}".format(tm1.Iq.estimate,tm2.Iq.estimate)
     img1 = font.render(text1, True, pygame.color.THECOLORS['red'])
