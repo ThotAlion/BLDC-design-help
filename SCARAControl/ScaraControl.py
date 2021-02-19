@@ -55,18 +55,18 @@ modepygame = -1
 
 
 # channel = guess_channel(bustype_hint='slcan')
-channel='/dev/ttyS7'
+channel='/dev/ttyS3'
 can_bus = can.Bus(bustype='slcan',channel=channel,bitrate=1000000)
 iface = CAN(can_bus)
 tm1 = Tinymovr(node_id=2, iface=iface)
 tm2 = Tinymovr(node_id=1, iface=iface)
 
-maxspeed = 800*turn/min
-tm1.set_limits(velocity=maxspeed*1.5, current=10.0*A)
-tm2.set_limits(velocity=maxspeed, current=14.0*A)
-tm1.set_gains(position=50.0, velocity=0.0001)
-tm2.set_gains(position=50.0, velocity=0.0001)
-tm1.set_integrator_gains(velocity=0.001)
+maxspeed = 1500*turn/min
+tm1.set_limits(velocity=maxspeed*1.5, current=22.0*A)
+tm2.set_limits(velocity=maxspeed, current=22.0*A)
+tm1.set_gains(position=100.0, velocity=0.0001)
+tm2.set_gains(position=100.0, velocity=0.0001)
+tm1.set_integrator_gains(velocity=0.000)
 tm2.set_integrator_gains(velocity=0.000)
 
 # print(tm1.motor_info)
@@ -102,6 +102,9 @@ while goon:
                 print ("ZERO")
                 theta10 = tm1.encoder_estimates.position
                 theta20 = tm2.encoder_estimates.position
+                t0 = time.time()
+                Y0= Y
+                Z0= Z
                 modepygame = 0
             elif event.key == pygame.K_p and modepygame == 0:
                 print ("POINT")
@@ -135,6 +138,9 @@ while goon:
                 modepygame = -2
             else:
                 modepygame = 0
+                t0 = time.time()
+                Y0= Y
+                Z0= Z
 
     # motors
     theta1m = (-tm1.encoder_estimates.position.to(deg)+theta10)/ratioThigh
@@ -153,13 +159,19 @@ while goon:
         p2pactivated = False
     elif modepygame == -2:
         activated = False
-    elif modepygame == 0:
-        activated = True
         p2pactivated = False
-        alpha = 0.0*deg
-        E=0.0*m
-        F=-LMAX
-        D=0.0*m
+    elif modepygame == 0:
+        # activated = True
+        # p2pactivated = False
+        # alpha = 0.0*deg
+        # E=0.0*m
+        # F=-LMAX
+        # D=0.0*m
+        activated = False
+        p2pactivated = True
+        Yobj=0.0
+        Zobj= -1.0*LMAX
+        Duration = 5.0
     elif modepygame == 1:
         activated = True
         p2pactivated = False
@@ -199,21 +211,21 @@ while goon:
         activated = True
         p2pactivated = False
         alpha += step
-        E=0.00*m
+        E=0.05*m
         F=-0.7*(L1+L2)
-        D=0.03*m
+        D=0.04*m
     elif modepygame == 7:
         activated = False
         p2pactivated = True
         Yobj=0.0
-        Zobj= - 0.7*LMAX
+        Zobj= - 0.3*LMAX
         Duration = 5.0
 
 
     if p2pactivated:
         # Control
         bary = maximum(0,minimum((time.time()-t0)/Duration,1))
-        print("bary: "+str(bary))
+        # print("bary: "+str(bary))
         Yfoot = Y0*(1-bary)+Yobj*bary
         Zfoot = Z0*(1-bary)+Zobj*bary
         
@@ -248,8 +260,10 @@ while goon:
         theta1=theta-thetaC
         # print("theta1: "+str(theta1.to(deg)))
 
-        tm1.position_control()
-        tm1.set_pos_setpoint(theta10-ratioThigh*theta1)
+        # tm1.position_control()
+        # tm1.set_pos_setpoint(theta10-ratioThigh*theta1)
+        tm1.current_control()
+        tm1.set_cur_setpoint(0.0*A)
         tm2.position_control()
         tm2.set_pos_setpoint(theta20+ratioKnee*theta2)
     elif activated:
@@ -284,8 +298,10 @@ while goon:
         theta1=theta-thetaC
         # print("theta1: "+str(theta1.to(deg)))
 
-        tm1.position_control()
-        tm1.set_pos_setpoint(theta10-ratioThigh*theta1)
+        # tm1.position_control()
+        # tm1.set_pos_setpoint(theta10-ratioThigh*theta1)
+        tm1.current_control()
+        tm1.set_cur_setpoint(0.0*A)
         tm2.position_control()
         tm2.set_pos_setpoint(theta20+ratioKnee*theta2)
     else:
