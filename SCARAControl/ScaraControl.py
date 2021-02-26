@@ -55,7 +55,7 @@ modepygame = -1
 
 
 # channel = guess_channel(bustype_hint='slcan')
-channel='/dev/ttyS3'
+channel='/dev/ttyS7'
 can_bus = can.Bus(bustype='slcan',channel=channel,bitrate=1000000)
 iface = CAN(can_bus)
 tm1 = Tinymovr(node_id=2, iface=iface)
@@ -64,17 +64,19 @@ tm2 = Tinymovr(node_id=1, iface=iface)
 maxspeed = 1500*turn/min
 tm1.set_limits(velocity=maxspeed*1.5, current=22.0*A)
 tm2.set_limits(velocity=maxspeed, current=22.0*A)
-tm1.set_gains(position=100.0, velocity=0.0001)
-tm2.set_gains(position=100.0, velocity=0.0001)
-tm1.set_integrator_gains(velocity=0.000)
-tm2.set_integrator_gains(velocity=0.000)
+tm1.set_gains(position=100.0, velocity=0.0002)
+tm2.set_gains(position=100.0, velocity=0.0002)
+tm1.set_integrator_gains(velocity=0.001)
+tm2.set_integrator_gains(velocity=0.001)
 
 # print(tm1.motor_info)
 # print(tm2.motor_info)
 # print(tm1.device_info)
 # print(tm2.device_info)
+jump = 0.08
 
 while goon:
+    tr0 = time.time()
     # sensors
     # keyboard
     for event in pygame.event.get():
@@ -103,8 +105,8 @@ while goon:
                 theta10 = tm1.encoder_estimates.position
                 theta20 = tm2.encoder_estimates.position
                 t0 = time.time()
-                Y0= Y
-                Z0= Z
+                Y0 = 0.0*m
+                Z0 = -L1-L2
                 modepygame = 0
             elif event.key == pygame.K_p and modepygame == 0:
                 print ("POINT")
@@ -183,30 +185,30 @@ while goon:
         activated = True
         p2pactivated = False
         alpha = +90.0*deg
-        E=0.04*m
-        F=-0.7*(L1+L2)
-        D=0.04*m
+        E=jump*m
+        F=-1.0*(L1+L2)
+        D=jump*m
     elif modepygame == 3:
         activated = True
         p2pactivated = False
         alpha = -90.0*deg
-        E=0.04*m
-        F=-0.7*(L1+L2)
-        D=0.04*m
+        E=jump*m
+        F=-1.0*(L1+L2)
+        D=jump*m
     elif modepygame == 4:
         activated = True
         p2pactivated = False
         alpha = 0.0*deg
-        E=0.04*m
-        F=-0.7*(L1+L2)
-        D=0.04*m
+        E=jump*m
+        F=-1.0*(L1+L2)
+        D=jump*m
     elif modepygame == 5:
         activated = True
         p2pactivated = False
         alpha = 180.0*deg
-        E=0.04*m
-        F=-0.7*(L1+L2)
-        D=0.04*m
+        E=jump*m
+        F=-1.0*(L1+L2)
+        D=jump*m
     elif modepygame == 6:
         activated = True
         p2pactivated = False
@@ -236,7 +238,7 @@ while goon:
 
         # lenght and angle of leg
         L = sqrt(Yfoot**2+Zfoot**2)
-        L = maximum(minimum(L,LMAX*0.95),LMAX*0.3)
+        L = maximum(minimum(L,LMAX*1.0),LMAX*0.3)
         # print("L: "+str(L))
         theta = arcsin(Yfoot/L)
         theta = maximum(minimum(theta,45*deg),-45*deg)
@@ -260,10 +262,8 @@ while goon:
         theta1=theta-thetaC
         # print("theta1: "+str(theta1.to(deg)))
 
-        # tm1.position_control()
-        # tm1.set_pos_setpoint(theta10-ratioThigh*theta1)
-        tm1.current_control()
-        tm1.set_cur_setpoint(0.0*A)
+        tm1.position_control()
+        tm1.set_pos_setpoint(theta10-ratioThigh*theta1)
         tm2.position_control()
         tm2.set_pos_setpoint(theta20+ratioKnee*theta2)
     elif activated:
@@ -274,7 +274,7 @@ while goon:
 
         # lenght and angle of leg
         L = sqrt(Yfoot**2+Zfoot**2)
-        L = maximum(minimum(L,LMAX*0.95),LMAX*0.3)
+        L = maximum(minimum(L,LMAX*1.0),LMAX*0.3)
         # print("L: "+str(L))
         theta = arcsin(Yfoot/L)
         theta = maximum(minimum(theta,45*deg),-45*deg)
@@ -298,10 +298,8 @@ while goon:
         theta1=theta-thetaC
         # print("theta1: "+str(theta1.to(deg)))
 
-        # tm1.position_control()
-        # tm1.set_pos_setpoint(theta10-ratioThigh*theta1)
-        tm1.current_control()
-        tm1.set_cur_setpoint(0.0*A)
+        tm1.position_control()
+        tm1.set_pos_setpoint(theta10-ratioThigh*theta1)
         tm2.position_control()
         tm2.set_pos_setpoint(theta20+ratioKnee*theta2)
     else:
@@ -310,7 +308,7 @@ while goon:
         tm2.current_control()
         tm2.set_cur_setpoint(0.0*A)
 
-
+    print(time.time()-tr0)
     # display
     text1 = "Current :  {:.2f}||{:.2f}".format(tm1.Iq.estimate,tm2.Iq.estimate)
     img1 = font.render(text1, True, pygame.color.THECOLORS['red'])
@@ -354,6 +352,8 @@ while goon:
     ecran.blit(img100, (20, 220))
     ecran.blit(img101, (20, 260))
     pygame.display.update()
+
+    
     
     time.sleep(dt)
 
