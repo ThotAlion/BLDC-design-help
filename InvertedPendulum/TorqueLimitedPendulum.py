@@ -3,7 +3,7 @@ import pygame
 import time
 import can
 from tinymovr import Tinymovr
-from tinymovr.iface.can import CAN, guess_channel
+from tinymovr.iface.can_bus import CANBus
 from tinymovr.units import get_registry
 
 # Definition of units for Pint
@@ -22,7 +22,7 @@ dt = 0.01
 goon = True
 modepygame = 0
 # pendulum period
-T0 = 23.3/30 #30 oscillations in 23.3s
+T0 = 21.3/20 #20 oscillations in 21.3s
 # pendulum natural pulsation
 w0 = 2*pi/T0*rad/s
 nrj0=-w0*w0
@@ -34,14 +34,15 @@ font = pygame.font.SysFont(None, 48)
 
 # Instanciate Tinymovr interface
 # channel = guess_channel(bustype_hint='slcan')
-channel='/dev/ttyS6'
+channel='/dev/ttyS17'
 can_bus = can.Bus(bustype='slcan',channel=channel,bitrate=1000000)
-iface = CAN(can_bus)
+iface = CANBus(can_bus)
 tm = Tinymovr(node_id=1, iface=iface)
 
 # initialise motor control gains and limits
 tm.set_limits(velocity=2000*turn/min, current=10.0*A)
-tm.set_gains(position=50.0, velocity=0.001)
+tm.set_gains(position=40.0, velocity=0.002)
+tm.set_integrator_gains(velocity=0.0000)
 print(tm.motor_info)
 print(tm.device_info)
 
@@ -63,11 +64,13 @@ while goon:
                 modepygame = 1
             elif event.key == pygame.K_UP:
                 print ("haut")
-                modepygame = 3
+                modepygame = 6
             elif event.key == pygame.K_LEFT:
                 print ("gauche")
+                modepygame = 4
             elif event.key == pygame.K_RIGHT:
                 print ("droite")
+                modepygame = 5
             elif event.key == pygame.K_z:
                 print ("zero")
                 theta0 = tm.encoder_estimates.position.to(rad)
@@ -95,19 +98,31 @@ while goon:
         tm.set_vel_setpoint(0.0*rad/s)
     elif modepygame == 2:
         tm.current_control()
-        error = nrj-(-nrj0+8*rad*rad/(s*s))
+        error = nrj-(-nrj0-0.0*rad*rad/(s*s))
         torque=(-0.05*thetap*error).magnitude
-        torque=maximum(minimum(torque,4.0),-4.0)
+        torque=maximum(minimum(torque,10.0),-10.0)
+        # little kick at beginning
+        if abs(nrj-nrj0)<1.0*rad*rad/(s*s):
+            torque=10.0
         # print("{:.2f}\t>{:.1f}\t>{:.1f}\t>{:.1f}".format(torque,nrj,theta,thetap))
         tm.set_cur_setpoint(torque)
-        if cos(tm.encoder_estimates.position.to(rad)-theta0)<-0.95:
+        if cos(tm.encoder_estimates.position.to(rad)-theta0)<-0.90:
             modepygame = 3
     elif modepygame == 3:
         # control to the closest upright position
         tm.position_control()
         tm.set_pos_setpoint(round((tm.encoder_estimates.position.to(rad)-theta0)/(2*pi*rad)+0.5)*2*pi-pi+theta0)
-        if cos(tm.encoder_estimates.position.to(rad)-theta0)>-0.95:
+        if cos(tm.encoder_estimates.position.to(rad)-theta0)>-0.90:
             modepygame = 2
+    elif modepygame == 4:
+        tm.current_control()
+        tm.set_cur_setpoint(10.0*A)
+    elif modepygame == 5:
+        tm.current_control()
+        tm.set_cur_setpoint(-10.0*A)
+    elif modepygame == 6:
+        tm.position_control()
+        tm.set_pos_setpoint(round((tm.encoder_estimates.position.to(rad)-theta0)/(2*pi*rad)+0.5)*2*pi-pi+theta0)
 
     # display in window
     text1 = "Current : {:.2f}".format(tm.Iq.estimate)
@@ -135,7 +150,7 @@ while goon:
     rect6 = img6.get_rect()
     pygame.draw.rect(img6, pygame.color.THECOLORS['blue'], rect6, 1)
     
-    img100 = font.render("Error code : %.0f" % tm.state.error, True, pygame.color.THECOLORS['red'])
+    img100 = font.render("Error code : %s" % tm.state.error_descriptions, True, pygame.color.THECOLORS['red'])
     rect100 = img100.get_rect()
     pygame.draw.rect(img100, pygame.color.THECOLORS['blue'], rect100, 1)
 
@@ -157,6 +172,6 @@ while goon:
 
 # stop calm procedure
 print("ARRET")
-tm.estop()
+tm.reset()
 
 time.sleep(0.1)
